@@ -1,24 +1,37 @@
-from revolt import Client, Message
-from newsapi import NewsApiClient
-from os import os
+import requests
+from revolt import Client, TextChannel
+import always_on
+import time
 
-# NewsAPIとRevoltの設定
-newsapi = Client(session, os.environ['api-key'])
-client = Client(session, os.environ['Revolt-TOKEN'])
+class NewsBot(Client):
+  def __init__(self, token):
+      super().__init__(token=token)
+# Revoltクライアントの初期化
+class NewsBot(Client):
+    async def on_ready(self):
+        print(f"Logged in as {self.user.username}")
+        # ここでニュースを送信したいチャンネルのIDを指定してください
+        channel_id = '01HPENF32VKTWPD2VFW0EH0GYK'
+        channel = await self.fetch_channel(channel_id)
+        if isinstance(channel, TextChannel):
+            news_articles = get_news(api_key, 'jp')
+            if news_articles:
+                for article in news_articles[:5]:  # トップ5記事のみ送信
+                    await channel.send(f"Title: {article['title']}\nURL: {article['url']}")
+            else:
+                await channel.send("今日はニュースがありません。")
+        else:
+            print("指定されたチャンネルはテキストチャンネルではありません。")
 
-# Revoltに接続
-@client.event
-async def on_ready():
-    print(f'Logged in as {client.user}')
+# ここにRevoltボットのトークンを入力してください
+revolt_bot_token = 'BaL5C9RI1sjs2i0DKd3CUmLRTUedxpaHT7oOz58xKA3ebibeavuQS_I8HL4qUSsU'
 
-    # ニュースを取得
-    top_headlines = newsapi.get_top_headlines(language='ja')
+# NewsAPIのAPIキーを入力してください
+api_key = '8d3db2a0f076426482dfc5b8787bad32'
 
-    # Revoltチャンネルにニュースを送信
-    channel_id = '01HPENF32VKTWPD2VFW0EH0GYK'  # 送信するチャンネルのIDを指定
-    for article in top_headlines['articles']:
-        content = f"{article['title']}\n{article['description']}\n{article['url']}"
-        await client.send_message(channel_id, content)
+# 既存のget_newsとdisplay_news関数はここに含める
 
-# ボットを起動
-client.run()
+# ボットの実行
+bot = NewsBot(revolt_bot_token)
+always_on.activate()
+bot.run()
