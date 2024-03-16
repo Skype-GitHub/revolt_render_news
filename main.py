@@ -1,105 +1,23 @@
-import revolt
-import requests
-import asyncio
-import os
+from revolt import Client, Message
+from newsapi import NewsApiClient
 
-import always_on
-import time
+# NewsAPIとRevoltの設定
+newsapi = Client(session, os.environ['api-key'])
+client = Client(session, os.environ['Revolt-TOKEN'])
 
+# Revoltに接続
+@client.event
+async def on_ready():
+    print(f'Logged in as {client.user}')
 
-async def reconnect():
-  while True:
-    requests.get("https://lian-tou-bot.ztttas11.repl.co/")
-    await asyncio.sleep(60)
+    # ニュースを取得
+    top_headlines = newsapi.get_top_headlines(language='ja')
 
+    # Revoltチャンネルにニュースを送信
+    channel_id = '01HPENF32VKTWPD2VFW0EH0GYK'  # 送信するチャンネルのIDを指定
+    for article in top_headlines['articles']:
+        content = f"{article['title']}\n{article['description']}\n{article['url']}"
+        await client.send_message(channel_id, content)
 
-
-class Client(revolt.Client):
-  
-  async def on_ready(self):
-    print('Run  連投bot-revolt')
-    await reconnect()
-  
-
-
-  async def on_message(self, message: revolt.Message):
-    
-
-    
-      
-    if message.content == "./rentou":
-      print('./rentou')
-      for _ in range(10):
-
-        await message.channel.send("連投")
-    if message.content == "..l":
-      print('見えない連投')
-      for _ in range(10):
-
-        await message.channel.send("[](..)")
-    if message.content == "./run.rentou":
-      await message.channel.send("> 連投Bot - Replit")
-    
-
-    
-
-    
-    
-
-    
-    
-    if message.content == "./gazou.rentou":
-      print('//gazou.rentou')
-      for _ in range(10):
-        await message.channel.send("[](https://autumn.revolt.chat/attachments/2PlNj2OIRXFulLko2A89x4s-cIRjlvjneldZyGIPt5/027cdc8e74424ea19922161c35befd5c_high.webp)")
-    if message.content == "//sasa.rentou":
-      print('./sasa.rentou')
-      for _ in range(10):
-
-        await message.channel.send("笹")
-    if message.content == "./emoji.rentou":
-      print('./emoji.rentou')
-      for _ in range(10):
-        
-        await message.channel.send(":01H8TTWPE28K7CY4AHGX652FBF:")
-    if message.content == "./ms":
-      await message.channel.send(os.environ['message'])
-    if message.content == "./help.rentou":
-      print('./help.rentou')
-      await message.channel.send(
-        '> コマンド一覧|||./rentou:「連投」というメッセージが連投します|||./gazou.rentou:画像が連投します(画像はztttas1が画像生成AIで作成したものです)|./sasa.rentou:「笹」というメッセージが連投します|||./run.rentou:起動しているかチェック出来ます|||./emoji.rentou:絵文字を連投します||||./ver.rentou:バージョンを知れます'
-      )
-    
-    
-    if message.content == "./":
-      print('//senden')
-      await message.channel.send("")
-      
-    
-    
-    if "[](" in message.content:
-       print('空白メッセージ検知')
-       
-       requests.get("https://lian-tou-bot.ztttas11.repl.co/")
-    if message.content == "//ver.rentou":
-       await message.channel.send(os.environ['ver'])
-        
-
-    
-    
-
-
-
-async def main():
-  async with revolt.utils.client_session() as session:
-    client = Client(session, os.environ['Revolt-TOKEN'])
-    await client.start()
-    
-
-
-
-
-
-always_on.activate()
-
-asyncio.run(main())
+# ボットを起動
+client.run()
