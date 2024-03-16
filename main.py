@@ -1,5 +1,6 @@
 from revolt import Client, Message
 from newsapi import NewsApiClient
+from os import os
 
 # NewsAPIとRevoltの設定
 newsapi = Client(session, os.environ['api-key'])
