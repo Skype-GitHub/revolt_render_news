@@ -3,12 +3,7 @@ from revolt import Client, TextChannel
 import always_on
 import time
 
-class NewsBot(Client):
-  def __init__(self, token):
-      super().__init__(token=token)
-# Revoltクライアントの初期化
-class NewsBot(Client):
-    async def on_ready(self):
+async def on_ready(self):
         print(f"Logged in as {self.user.username}")
         # ここでニュースを送信したいチャンネルのIDを指定してください
         channel_id = '01HPENF32VKTWPD2VFW0EH0GYK'
