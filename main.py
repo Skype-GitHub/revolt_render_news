@@ -1,7 +1,7 @@
-import requests
 import revolt
 import asyncio
 import always_on
+import requests
 class RevoltBot(revolt.Client):
     async def on_ready(self):
         print(f"Logged in as {self.user.name}")
