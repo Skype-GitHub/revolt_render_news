@@ -1,32 +1,35 @@
 import requests
-from revolt import Client, TextChannel
+import revolt
+import asyncio
 import always_on
-import time
+class RevoltBot(revolt.Client):
+    async def on_ready(self):
+        print(f"Logged in as {self.user.name}")
+# NewsAPIからニュースのJSONを取得する同期関数
+def get_news_json(api_key):
+    response = requests.get(
+        'https://newsapi.org/v2/top-headlines',
+        params={'country': 'jp', 'apiKey': api_key}
+    )
+    return response.json()
 
-async def on_ready(self):
-        print(f"Logged in as {self.user.username}")
-        # ここでニュースを送信したいチャンネルのIDを指定してください
-        channel_id = '01HPENF32VKTWPD2VFW0EH0GYK'
-        channel = await self.fetch_channel(channel_id)
-        if isinstance(channel, TextChannel):
-            news_articles = get_news(api_key, 'jp')
-            if news_articles:
-                for article in news_articles[:5]:  # トップ5記事のみ送信
-                    await channel.send(f"Title: {article['title']}\nURL: {article['url']}")
-            else:
-                await channel.send("今日はニュースがありません。")
-        else:
-            print("指定されたチャンネルはテキストチャンネルではありません。")
+class RevoltBot(revolt.Client):
+  async def on_ready(self):
+      print(f"Logged in as {self.user.name}")
 
-# ここにRevoltボットのトークンを入力してください
-revolt_bot_token = 'BaL5C9RI1sjs2i0DKd3CUmLRTUedxpaHT7oOz58xKA3ebibeavuQS_I8HL4qUSsU'
+  async def on_message(self, message: revolt.Message):
+   if message.content == "./news":
+        loop = asyncio.get_event_loop()
+        news_json = await loop.run_in_executor(None, get_news_json, api_key)
+        await client.send_message(message.channel_id, str(news_json))
+   await client.start()
 
-# NewsAPIのAPIキーを入力してください
-api_key = '8d3db2a0f076426482dfc5b8787bad32'
+async def main():
+    async with revolt.utils.client_session() as session:
+        client = RevoltBot(session = session, token = "BaL5C9RI1sjs2i0DKd3CUmLRTUedxpaHT7oOz58xKA3ebibeavuQS_I8HL4qUSsU")
+        
 
-# 既存のget_newsとdisplay_news関数はここに含める
-
-# ボットの実行
-bot = NewsBot(revolt_bot_token)
-always_on.activate()
-bot.run()
+if __name__ == '__main__':
+  api_key = '8d3db2a0f076426482dfc5b8787bad32'  # NewsAPIのAPIキー   # Revoltのトークン
+  asyncio.run(main()) # asyncio.runを使ってメイン関数を実行
+  always_on.activate()
